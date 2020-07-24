@@ -61,18 +61,84 @@ const createMedic = async(req, res = response) => {
 
 };
 
-const updateMedic = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: 'Actualizando Médico'
-    });
+const updateMedic = async(req, res = response) => {
+    const id = req.params.id;
+    const hospitalId = req.body.hospital;
+    const uid = req.uid;
+
+    try {
+
+        const medic = await Medic.findById( id );
+
+        if ( !medic ) {
+            return res.status(400).json({
+                ok: false,
+                msg: "Médico no encontrado."
+            });
+        }
+
+        const existHospital = await Hospital.findById(hospitalId);
+
+        if (!existHospital) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Hospital no encontrado.'
+            });
+        }
+
+        const { _id, user, img, ...object } = req.body;
+
+        const fieldsToUpdate = {
+            ...object,
+            user: uid
+        };
+
+        const medicUpdated = await Medic.findByIdAndUpdate( id, fieldsToUpdate, { new: true } );
+
+        res.json({
+            ok: true,
+            medic: medicUpdated
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "Error inesperado, revisar los logs."
+        });
+    }
+
 };
 
-const deleteMedic = (req, res = response) => {
-    res.json({
-        ok: true,
-        msg: 'Eliminando Médico'
-    });
+const deleteMedic = async (req, res = response) => {
+    const id = req.params.id;
+
+    try {
+        
+        const medic = await Medic.findById( id );
+
+        if ( !medic ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Médico no encontrado.'
+            });
+        }
+
+        await Medic.findByIdAndDelete( id );
+
+        res.json({
+            ok: true,
+            msg: 'Médico eliminado.'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar los logs.'
+        });
+    }
+
 };
 
 module.exports = {
