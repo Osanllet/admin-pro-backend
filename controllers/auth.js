@@ -50,12 +50,32 @@ const renewJWT = async (req, res = response) => {
 
     const uid = req.uid;
 
-    const token = await createJWT( uid );
+    try {
 
-    res.json({
-        ok: true,
-        token
-    })
+        const token = await createJWT( uid );
+
+        const user = await User.findById( uid );
+
+        if ( !user ) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El usuario no fue encontrado.'
+            });
+        }
+
+        res.json({
+            ok: true,
+            token,
+            user
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar los logs.'
+        });
+    }
 }
 
 module.exports = {

@@ -9,7 +9,7 @@ const getUsers = async (req, res) => {
     const from = Number(req.query.from) || 0;
     const items = Number(req.query.items) || 5;
 
-    try {
+    try 
 
         const [ users, total ] = await Promise.all([
             User
@@ -42,7 +42,6 @@ const createUser = async (req, res = response) => {
     const { email, password } = req.body;
 
     try {
-
         const emailExists = await User.findOne({ email });
 
         if ( emailExists ) {
